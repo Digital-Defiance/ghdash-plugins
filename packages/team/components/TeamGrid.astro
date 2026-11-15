@@ -1,0 +1,187 @@
+---
+import { Image } from "emdash/ui";
+import { PortableText } from "emdash/ui";
+
+interface Props {
+	members: Array<any>;
+	layout?: "grid" | "list";
+	/** Show the departments as filter buttons above the grid. */
+	filter?: boolean;
+	/** Shape of the photos. */
+	shape?: "round" | "square";
+	/** Where the photo sits relative to the text. */
+	photoPosition?: "top" | "side" | "banner";
+}
+
+const { members, layout = "grid", filter = false, shape = "round", photoPosition = "top" } = Astro.props;
+const departments = [...new Set(members.map((m) => m.data.department).filter(Boolean))];
+const links = [
+	["website", "Website"],
+	["email", "Email"],
+	["linkedin", "LinkedIn"],
+	["github", "GitHub"],
+	["twitter", "X"],
+	["mastodon", "Mastodon"],
+	["instagram", "Instagram"],
+] as const;
+const hrefFor = (key: string, value: string) => (key === "email" && !value.includes(":") ? `mailto:${value}` : value);
+---
+
+<div class:list={["team", `team--${layout}`, `team--${shape}`, `team--${photoPosition}`]}>
+	{
+		filter && departments.length > 1 && (
+			<div class="team__filter" role="group" aria-label="Filter by department">
+				<button type="button" data-department="" aria-pressed="true">All</button>
+				{departments.map((d) => (
+					<button type="button" data-department={d} aria-pressed="false">
+						{d}
+					</button>
+				))}
+			</div>
+		)
+	}
+	<ul class="team__list">
+		{
+			members.map((m) => (
+				<li
+					class="member"
+					data-department={m.data.department ?? ""}
+					style={m.data.accent_color ? `--member-color: ${m.data.accent_color}` : undefined}
+				>
+					<a class="member__photo" href={`/team/${m.id}`} tabindex="-1" aria-hidden="true">
+						{m.data.photo && <Image image={m.data.photo} sizes="(min-width: 700px) 320px, 100vw" class="member__img" />}
+						{m.data.hover_photo && <Image image={m.data.hover_photo} sizes="320px" class="member__img member__img--hover" />}
+					</a>
+					<div class="member__body">
+						<h3 class="member__name">
+							<a href={`/team/${m.id}`}>{m.data.title}</a>
+						</h3>
+						{m.data.role && <p class="member__role">{m.data.role}</p>}
+						{m.data.bio && (
+							<div class="member__bio">
+								<PortableText value={m.data.bio} />
+							</div>
+						)}
+						{m.data.more_info && (
+							<details class="member__more">
+								<summary>More info</summary>
+								<PortableText value={m.data.more_info} />
+							</details>
+						)}
+						<ul class="member__links">
+							{links.map(([key, label]) => m.data[key] && (
+								<li>
+									<a href={hrefFor(key, m.data[key])} rel="me noopener">
+										{label}
+									</a>
+								</li>
+							))}
+						</ul>
+					</div>
+				</li>
+			))
+		}
+	</ul>
+</div>
+
+<script>
+	for (const group of document.querySelectorAll<HTMLElement>(".team__filter")) {
+		const root = group.closest(".team")!;
+		group.addEventListener("click", (e) => {
+			const button = (e.target as HTMLElement).closest("button");
+			if (!button) return;
+			const dept = button.dataset.department ?? "";
+			for (const b of group.querySelectorAll("button")) b.setAttribute("aria-pressed", String(b === button));
+			for (const li of root.querySelectorAll<HTMLElement>(".member"))
+				li.hidden = dept !== "" && li.dataset.department !== dept;
+		});
+	}
+</script>
+
+<style>
+	.team__list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: grid;
+		gap: var(--spacing-6, 1.5rem);
+		grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+	}
+	.team--list .team__list {
+		grid-template-columns: 1fr;
+	}
+	.member {
+		display: grid;
+		align-content: start;
+		gap: 0.75rem;
+		padding: 1rem;
+		border-top: 4px solid var(--member-color, currentColor);
+		border-radius: 0.5rem;
+		background: color-mix(in srgb, currentColor 5%, transparent);
+	}
+	.member[hidden] {
+		display: none;
+	}
+	.team--list .member,
+	.team--side .member {
+		grid-template-columns: 8rem minmax(0, 1fr);
+		align-items: start;
+	}
+	.member__photo {
+		position: relative;
+		display: block;
+		aspect-ratio: 1;
+		overflow: hidden;
+		background: color-mix(in srgb, var(--member-color, currentColor) 20%, transparent);
+	}
+	.team--round .member__photo {
+		border-radius: 50%;
+	}
+	.team--banner .member__photo {
+		aspect-ratio: 16 / 9;
+		border-radius: 0.25rem;
+	}
+	.member__img {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+	.member__img--hover {
+		opacity: 0;
+		transition: opacity 0.2s;
+	}
+	.member__photo:hover .member__img--hover {
+		opacity: 1;
+	}
+	.member__name {
+		margin: 0;
+	}
+	.member__role {
+		margin: 0;
+		color: var(--member-color, inherit);
+		font-weight: 600;
+	}
+	.member__more summary {
+		cursor: pointer;
+	}
+	.member__links {
+		list-style: none;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+		margin: 0;
+		padding: 0;
+	}
+	.team__filter {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.5rem;
+		margin-block-end: 1.5rem;
+	}
+	.team__filter button[aria-pressed="true"] {
+		font-weight: 700;
+		text-decoration: underline;
+	}
+</style>

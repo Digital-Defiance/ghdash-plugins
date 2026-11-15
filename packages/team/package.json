@@ -1,0 +1,24 @@
+{
+  "name": "@digitaldefiance/ghdash-team",
+  "version": "0.1.0",
+  "description": "A team members collection, grid component and pages for EmDash and GHDash sites.",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Digital-Defiance/ghdash-plugins.git",
+    "directory": "packages/team"
+  },
+  "homepage": "https://github.com/Digital-Defiance/ghdash-plugins/tree/main/packages/team#readme",
+  "keywords": ["emdash", "ghdash", "astro", "team", "staff"],
+  "bin": { "ghdash-team": "bin/ghdash-team.mjs" },
+  "exports": {
+    "./TeamGrid.astro": "./components/TeamGrid.astro",
+    "./package.json": "./package.json"
+  },
+  "files": ["bin", "components", "templates", "README.md"],
+  "peerDependencies": {
+    "astro": ">=5",
+    "emdash": ">=1.5.0"
+  }
+}

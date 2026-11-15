@@ -1,0 +1,36 @@
+---
+export async function getStaticPaths() {
+	const { getEmDashCollection } = await import("emdash");
+	const { entries } = await getEmDashCollection("team", { limit: 1000 });
+	return entries.map((e) => ({ params: { slug: e.id } }));
+}
+
+import { getEmDashEntry, decodeSlug } from "emdash";
+import { PortableText } from "emdash/ui";
+import Base from "../../layouts/Base.astro";
+import TeamGrid from "@digitaldefiance/ghdash-team/TeamGrid.astro";
+
+const slug = decodeSlug(Astro.params.slug);
+if (!slug) return Astro.rewrite("/404");
+const { entry: member } = await getEmDashEntry("team", slug);
+if (!member) return Astro.rewrite("/404");
+---
+
+<Base title={member.data.title} pageTitle={member.data.title} description={member.data.role ?? ""}>
+	<article class="band" data-pagefind-body>
+		<div class="frame">
+			<p><a href="/team">All team members</a></p>
+			<TeamGrid members={[member]} layout="list" />
+		</div>
+	</article>
+</Base>
+
+<style>
+	.band {
+		padding-block: clamp(3rem, 2rem + 4vw, 5.5rem);
+	}
+	h1 {
+		font-size: var(--font-size-display, 2.5rem);
+		margin-block-end: 1.5rem;
+	}
+</style>

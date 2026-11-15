@@ -1,0 +1,21 @@
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm test
+        working-directory: packages/fonts
+      - name: Packages contain what they should
+        run: |
+          (cd packages/team && npm pack --dry-run 2>&1 | grep -E "bin/ghdash-team.mjs|components/TeamGrid.astro|templates/team/index.astro")
+          (cd packages/fonts && npm pack --dry-run 2>&1 | grep -E "bin/ghdash-fonts.mjs|lib/build.mjs|components/FontStyles.astro")

@@ -1,0 +1,36 @@
+name: Publish to npm
+
+on:
+  push:
+    tags: ["team-v*", "fonts-v*"]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      - name: Trusted publishing needs npm 11.5.1 or later
+        run: npm install -g npm@^11.5.1
+      - name: The tag must match the package version
+        id: pkg
+        run: |
+          name="${GITHUB_REF_NAME%%-v*}"
+          version="${GITHUB_REF_NAME#*-v}"
+          dir="packages/${name}"
+          [ -d "$dir" ] || { echo "no package folder $dir"; exit 1; }
+          [ "$(node -p "require('./$dir/package.json').version")" = "$version" ] || { echo "tag ${GITHUB_REF_NAME} does not match the version in $dir/package.json"; exit 1; }
+          echo "dir=$dir" >> "$GITHUB_OUTPUT"
+      - name: Test
+        working-directory: ${{ steps.pkg.outputs.dir }}
+        run: npm test --if-present
+      - name: Publish
+        working-directory: ${{ steps.pkg.outputs.dir }}
+        run: npm publish --access public

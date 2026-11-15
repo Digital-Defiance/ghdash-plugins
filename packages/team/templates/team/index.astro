@@ -1,0 +1,29 @@
+---
+import { getEmDashCollection, getSiteSettings } from "emdash";
+import Base from "../../layouts/Base.astro";
+import TeamGrid from "@digitaldefiance/ghdash-team/TeamGrid.astro";
+import { resolveBlogSiteIdentity } from "../../utils/site-identity";
+
+const { entries } = await getEmDashCollection("team", { limit: 1000 });
+const members = entries.toSorted((a, b) => (a.data.order ?? 9999) - (b.data.order ?? 9999));
+const { siteTitle } = resolveBlogSiteIdentity(await getSiteSettings());
+---
+
+<Base title={`Team | ${siteTitle}`} pageTitle="Team" description="The people behind the site.">
+	<section class="band">
+		<div class="frame">
+			<h1>Team</h1>
+			<TeamGrid members={members} filter />
+		</div>
+	</section>
+</Base>
+
+<style>
+	.band {
+		padding-block: clamp(3rem, 2rem + 4vw, 5.5rem);
+	}
+	h1 {
+		font-size: var(--font-size-display, 2.5rem);
+		margin-block-end: 1.5rem;
+	}
+</style>

@@ -1,0 +1,60 @@
+import assert from "node:assert/strict";
+import { test } from "node:test";
+import { families, fileName, fontFaceCss, googleCssUrl, parseGoogleCss, readSettings, rulesCss } from "../lib/css.mjs";
+
+const GOOGLE = `/* cyrillic */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/inter/v20/aaa.woff2) format('woff2');
+  unicode-range: U+0301, U+0400-045F;
+}
+/* latin */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/inter/v20/bbb.woff2) format('woff2');
+  unicode-range: U+0000-00FF;
+}`;
+
+test("parses Google's CSS into one face per character set", () => {
+	const faces = parseGoogleCss(GOOGLE);
+	assert.deepEqual(faces.map((f) => f.subset), ["cyrillic", "latin"]);
+	assert.equal(faces[1].url, "https://fonts.gstatic.com/s/inter/v20/bbb.woff2");
+	assert.equal(fileName(faces[1]), "inter-normal-400-latin.woff2");
+	assert.match(fontFaceCss([faces[1]]), /src:url\(\.\/inter-normal-400-latin\.woff2\) format\('woff2'\)/);
+});
+
+test("builds the Google Fonts URL with sorted weights", () => {
+	assert.equal(googleCssUrl("Open Sans", ["700", "400"]), "https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap");
+});
+
+test("applies body and heading settings, falling back to the body font for headings", () => {
+	const { settings } = readSettings({ body_font: "Lora", base_size: "18px", heading_transform: "uppercase", heading_color: "#123456" });
+	const css = rulesCss(settings);
+	assert.match(css, /body\{font-family:'Lora',system-ui,sans-serif;font-size:18px\}/);
+	assert.match(css, /h1,h2,h3,h4,h5,h6\{color:#123456;text-transform:uppercase\}/);
+	assert.match(css, /--ghdash-heading-font:'Lora'/);
+});
+
+test("rejects values that could break out of the stylesheet", () => {
+	const { settings, warnings } = readSettings({
+		body_font: "Inter'; } body { display:none",
+		heading_color: "red; } * { display:none",
+		base_size: "1px;}",
+		weights: "400,bold",
+		custom_selectors: "h1 { color:red } | Inter\n.quote | Lora | 300\nnav a | Inter'x",
+	});
+	assert.equal(settings.bodyFont, undefined);
+	assert.equal(settings.headingColor, undefined);
+	assert.equal(settings.baseSize, undefined);
+	assert.deepEqual(settings.weights, ["400"]);
+	assert.deepEqual(settings.custom, [{ selector: ".quote", family: "Lora", weight: "300" }]);
+	assert.equal(warnings.length, 6);
+	assert.deepEqual(families(settings), ["Lora"]);
+	assert.doesNotMatch(rulesCss(settings), /display:none/);
+});

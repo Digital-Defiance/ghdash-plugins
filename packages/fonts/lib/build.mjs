@@ -1,6 +1,6 @@
-import { mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync, existsSync } from "node:fs";
+import { copyFileSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
-import { adobeImport, families, fileName, fontFaceCss, googleCssUrl, parseGoogleCss, readSettings, rulesCss } from "./css.mjs";
+import { adobeImport, customFaceCss, families, parseCustomFontName, fileName, fontFaceCss, googleCssUrl, parseGoogleCss, readSettings, rulesCss } from "./css.mjs";
 
 const UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36";
 const out = "public/fonts";
@@ -30,8 +30,22 @@ const { settings, warnings } = readSettings(row);
 for (const w of warnings) console.warn("ghdash-fonts: WARNING:", w);
 
 mkdirSync(out, { recursive: true });
+const customDir = "custom-fonts";
+const custom = [];
+if (existsSync(customDir)) {
+	for (const file of readdirSync(customDir)) {
+		const face = parseCustomFontName(file);
+		if (!face) {
+			if (!file.startsWith(".")) console.warn(`ghdash-fonts: WARNING: ${customDir}/${file} is not named like "Family Name-400.woff2" and was skipped`);
+			continue;
+		}
+		copyFileSync(join(customDir, file), join(out, `custom-${file}`));
+		custom.push(face);
+	}
+	if (custom.length) console.log(`ghdash-fonts: ${custom.length} font file(s) from ${customDir}/`);
+}
 const faces = [];
-for (const family of families(settings)) {
+for (const family of families(settings, custom.map((f) => f.family))) {
 	let res = await get(googleCssUrl(family, settings.weights));
 	if (res.status === 400) res = await get(googleCssUrl(family));
 	if (res.status !== 200) {
@@ -47,5 +61,5 @@ for (const family of families(settings)) {
 	}
 	console.log(`ghdash-fonts: ${family}: ${parsed.length} file(s)`);
 }
-writeFileSync(join(out, "fonts.css"), `${adobeImport(settings)}${fontFaceCss(faces)}\n${rulesCss(settings)}\n`);
+writeFileSync(join(out, "fonts.css"), `${adobeImport(settings)}${fontFaceCss(faces)}\n${custom.length ? `${customFaceCss(custom)}\n` : ""}${rulesCss(settings)}\n`);
 console.log(`ghdash-fonts: wrote ${out}/fonts.css with ${faces.length} font file(s)`);

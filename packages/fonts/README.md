@@ -50,8 +50,12 @@ Values are checked before they are written to the stylesheet. A font name, size,
 
 Adobe's licence doesn't allow self-hosting, so fonts from an Adobe web project load from `use.typekit.net`, and visitors make a request to Adobe. Google fonts are still served from your site. Create a web project at fonts.adobe.com, add the domains your site uses, and copy the project ID into "Adobe Fonts web project ID". List the Adobe font names (as shown in the project's CSS, like `proxima-nova`) in "Fonts that come from Adobe". If you already ran `ghdash-fonts init`, run it again to add the two new fields.
 
+## Your own font files
+
+Put `.woff2`, `.woff`, `.ttf` or `.otf` files in a `custom-fonts/` folder at the root of the site. You can upload them on github.com, since the studio can't take font files. Name each file after the font and weight: `Acme Sans-400.woff2`, `Acme Sans-700-italic.woff2`. The build copies the files to `public/fonts/` and writes the `@font-face` rules. Then use the name (`Acme Sans`) in the Fonts entry like any other font. Make sure you are licensed to publish the files, because they will be public in your repo and on your site.
+
 ## Not included
 
-Uploading your own font files and choosing fonts from a preview list. Italic styles are not downloaded.
+Choosing fonts from a preview list. Italic styles are not downloaded.
 
 MIT licensed.

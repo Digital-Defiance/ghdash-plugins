@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { adobeImport, families, fileName, fontFaceCss, googleCssUrl, parseGoogleCss, readSettings, rulesCss } from "../lib/css.mjs";
+import { adobeImport, customFaceCss, parseCustomFontName, families, fileName, fontFaceCss, googleCssUrl, parseGoogleCss, readSettings, rulesCss } from "../lib/css.mjs";
 
 const GOOGLE = `/* cyrillic */
 @font-face {
@@ -71,4 +71,16 @@ test("an invalid Adobe project ID is ignored", () => {
 	const { settings, warnings } = readSettings({ adobe_kit: "x/../y" });
 	assert.equal(adobeImport(settings), "");
 	assert.equal(warnings.length, 1);
+});
+
+test("reads the family, weight and style from a custom font file name", () => {
+	assert.deepEqual(parseCustomFontName("Acme Sans-700-italic.woff2"), { file: "Acme Sans-700-italic.woff2", family: "Acme Sans", weight: "700", style: "italic", format: "woff2" });
+	assert.equal(parseCustomFontName("Acme-bold.woff2"), undefined);
+	assert.equal(parseCustomFontName("Acme-400.exe"), undefined);
+	assert.match(customFaceCss([parseCustomFontName("Acme Sans-400.ttf")]), /src:url\(\.\/custom-Acme%20Sans-400\.ttf\) format\('truetype'\)/);
+});
+
+test("custom fonts are not looked up on Google", () => {
+	const { settings } = readSettings({ body_font: "Acme Sans", heading_font: "Lora" });
+	assert.deepEqual(families(settings, ["Acme Sans"]), ["Lora"]);
 });

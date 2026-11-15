@@ -79,9 +79,26 @@ export function readSettings(row) {
 	};
 }
 
+const FORMATS = { woff2: "woff2", woff: "woff", ttf: "truetype", otf: "opentype" };
+
+// "Acme Sans-700-italic.woff2" -> family "Acme Sans", weight 700, italic. Returns undefined for anything else.
+export function parseCustomFontName(file) {
+	const m = /^([A-Za-z0-9][A-Za-z0-9 ]{0,60})-([1-9]00)(-italic)?\.(woff2|woff|ttf|otf)$/.exec(file);
+	if (!m) return undefined;
+	return { file, family: m[1], weight: m[2], style: m[3] ? "italic" : "normal", format: FORMATS[m[4]] };
+}
+
+export const customFaceCss = (faces) =>
+	faces
+		.map(
+			(f) =>
+				`@font-face{font-family:'${f.family}';font-style:${f.style};font-weight:${f.weight};font-display:swap;src:url(./custom-${encodeURIComponent(f.file)}) format('${f.format}');}`,
+		)
+		.join("\n");
+
 // Fonts that come from Google, which are downloaded and served from the site.
-export function families(settings) {
-	const adobe = new Set(settings.adobeFamilies.map((f) => f.toLowerCase()));
+export function families(settings, customFamilies = []) {
+	const adobe = new Set([...settings.adobeFamilies, ...customFamilies].map((f) => f.toLowerCase()));
 	return [...new Set([settings.headingFont, settings.bodyFont, ...settings.custom.map((c) => c.family)].filter(Boolean))].filter(
 		(f) => !adobe.has(f.toLowerCase()),
 	);

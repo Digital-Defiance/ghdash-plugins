@@ -1,6 +1,6 @@
 import { mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
-import { families, fileName, fontFaceCss, googleCssUrl, parseGoogleCss, readSettings, rulesCss } from "./css.mjs";
+import { adobeImport, families, fileName, fontFaceCss, googleCssUrl, parseGoogleCss, readSettings, rulesCss } from "./css.mjs";
 
 const UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36";
 const out = "public/fonts";
@@ -47,5 +47,5 @@ for (const family of families(settings)) {
 	}
 	console.log(`ghdash-fonts: ${family}: ${parsed.length} file(s)`);
 }
-writeFileSync(join(out, "fonts.css"), `${fontFaceCss(faces)}\n${rulesCss(settings)}\n`);
+writeFileSync(join(out, "fonts.css"), `${adobeImport(settings)}${fontFaceCss(faces)}\n${rulesCss(settings)}\n`);
 console.log(`ghdash-fonts: wrote ${out}/fonts.css with ${faces.length} font file(s)`);

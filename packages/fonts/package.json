@@ -1,6 +1,6 @@
 {
   "name": "@digitaldefiance/ghdash-fonts",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Choose Google Fonts in the studio and serve them from your own site, for EmDash and GHDash.",
   "type": "module",
   "license": "MIT",

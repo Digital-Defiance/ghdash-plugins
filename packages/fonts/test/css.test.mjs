@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { families, fileName, fontFaceCss, googleCssUrl, parseGoogleCss, readSettings, rulesCss } from "../lib/css.mjs";
+import { adobeImport, families, fileName, fontFaceCss, googleCssUrl, parseGoogleCss, readSettings, rulesCss } from "../lib/css.mjs";
 
 const GOOGLE = `/* cyrillic */
 @font-face {
@@ -57,4 +57,18 @@ test("rejects values that could break out of the stylesheet", () => {
 	assert.equal(warnings.length, 6);
 	assert.deepEqual(families(settings), ["Lora"]);
 	assert.doesNotMatch(rulesCss(settings), /display:none/);
+});
+
+test("Adobe fonts load from Adobe and are not downloaded from Google", () => {
+	const { settings, warnings } = readSettings({ body_font: "Lora", heading_font: "proxima-nova", adobe_kit: "abc1def", adobe_families: "proxima-nova" });
+	assert.deepEqual(families(settings), ["Lora"]);
+	assert.equal(adobeImport(settings), '@import url("https://use.typekit.net/abc1def.css");\n');
+	assert.match(rulesCss(settings), /h1,h2,h3,h4,h5,h6\{font-family:'proxima-nova'/);
+	assert.deepEqual(warnings, []);
+});
+
+test("an invalid Adobe project ID is ignored", () => {
+	const { settings, warnings } = readSettings({ adobe_kit: "x/../y" });
+	assert.equal(adobeImport(settings), "");
+	assert.equal(warnings.length, 1);
 });

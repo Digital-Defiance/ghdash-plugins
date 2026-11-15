@@ -1,8 +1,10 @@
 // Pure helpers: validate the settings, parse Google's CSS, and write the rules that apply the fonts.
 
-const FAMILY = /^[A-Za-z0-9][A-Za-z0-9 ]{0,60}$/;
+const FAMILY = /^[A-Za-z0-9][A-Za-z0-9 -]{0,60}$/;
 const COLOR = /^(#[0-9a-fA-F]{3,8}|[a-zA-Z]{3,20}|(rgb|hsl)a?\([0-9.,%\s/]+\))$/;
 const LENGTH = /^[0-9.]+(px|rem|em|%)?$/;
+const ADOBE_KIT = /^[a-zA-Z0-9]{5,12}$/;
+const ADOBE_FAMILY = /^[a-zA-Z0-9][a-zA-Z0-9 -]{0,60}$/;
 const SELECTOR = /^[^{};@\\<>]+$/;
 export const SUBSETS = ["latin", "latin-ext", "cyrillic", "cyrillic-ext", "greek", "greek-ext", "vietnamese"];
 export const TRANSFORMS = ["none", "uppercase", "lowercase", "capitalize"];
@@ -45,10 +47,22 @@ export function readSettings(row) {
 			return [{ selector, family: fam, weight: /^[1-9]00$/.test(weight ?? "") ? weight : undefined }];
 		});
 	const transform = text(row.heading_transform);
+	const adobeKit = pick("adobe_kit", text(row.adobe_kit), (v) => ADOBE_KIT.test(v), "Adobe project ID");
+	const adobeFamilies = text(row.adobe_families)
+		.split(",")
+		.map((f) => f.trim())
+		.filter(Boolean)
+		.filter((f) => {
+			const ok = ADOBE_FAMILY.test(f);
+			if (!ok) warnings.push(`Adobe font "${f}" is not valid and was ignored`);
+			return ok;
+		});
 	return {
 		settings: {
 			headingFont: family("heading_font", "heading font"),
 			bodyFont: family("body_font", "body font"),
+			adobeKit,
+			adobeFamilies,
 			weights: weights.length ? weights : ["400", "700"],
 			subsets: subsets.length ? subsets : ["latin"],
 			headingWeight: pick("heading_weight", text(row.heading_weight), (v) => /^[1-9]00$/.test(v), "heading weight"),
@@ -65,8 +79,17 @@ export function readSettings(row) {
 	};
 }
 
+// Fonts that come from Google, which are downloaded and served from the site.
 export function families(settings) {
-	return [...new Set([settings.headingFont, settings.bodyFont, ...settings.custom.map((c) => c.family)].filter(Boolean))];
+	const adobe = new Set(settings.adobeFamilies.map((f) => f.toLowerCase()));
+	return [...new Set([settings.headingFont, settings.bodyFont, ...settings.custom.map((c) => c.family)].filter(Boolean))].filter(
+		(f) => !adobe.has(f.toLowerCase()),
+	);
+}
+
+// Adobe's licence doesn't allow self-hosting, so their stylesheet is loaded from Adobe.
+export function adobeImport(settings) {
+	return settings.adobeKit ? `@import url("https://use.typekit.net/${settings.adobeKit}.css");\n` : "";
 }
 
 export function googleCssUrl(family, weights) {

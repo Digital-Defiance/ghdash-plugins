@@ -42,6 +42,8 @@ if (!have) {
 		labelSingular: "Font settings",
 		supports: ["drafts", "revisions"],
 	});
+}
+{
 	const weight = (slug, label) => ({ slug, label, type: "select", validation: { options: ["100", "200", "300", "400", "500", "600", "700", "800", "900"] } });
 	const fields = [
 		{ slug: "title", label: "Name", type: "string", required: true },
@@ -57,9 +59,16 @@ if (!have) {
 		{ slug: "body_color", label: "Body text color", type: "string" },
 		{ slug: "heading_color", label: "Heading color", type: "string" },
 		{ slug: "heading_transform", label: "Heading case", type: "select", validation: { options: ["none", "uppercase", "lowercase", "capitalize"] } },
+		{ slug: "adobe_kit", label: "Adobe Fonts web project ID (optional; loads from Adobe, not your site)", type: "string" },
+		{ slug: "adobe_families", label: "Fonts that come from Adobe, comma separated (e.g. proxima-nova)", type: "string" },
 		{ slug: "custom_selectors", label: "Other elements: one per line as  selector | Font family | weight", type: "text" },
 	];
-	for (const f of fields) await call("POST", "/schema/collections/fonts/fields", f);
+	const known = (slug) =>
+		raw.selectValue(
+			"select count(*) from _emdash_fields f join _emdash_collections c on c.id = f.collection_id where c.slug = 'fonts' and f.slug = ?",
+			[slug],
+		) > 0;
+	for (const f of fields) if (!known(f.slug)) await call("POST", "/schema/collections/fonts/fields", f);
 }
 
 const exists = raw.selectValue("select count(*) from ec_fonts where deleted_at is null");

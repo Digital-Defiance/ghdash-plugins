@@ -1,23 +1,41 @@
 {
-  "name": "@digitaldefiance/ghdash-fonts",
-  "version": "0.2.0",
-  "description": "Choose Google Fonts in the studio and serve them from your own site, for EmDash and GHDash.",
+  "name": "@digitaldefiance/gitdash-fonts",
+  "version": "0.3.0",
+  "description": "Choose Google Fonts in the studio and serve them from your own site, for EmDash and GitDash.",
   "type": "module",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Digital-Defiance/ghdash-plugins.git",
+    "url": "git+https://github.com/Digital-Defiance/gitdash-plugins.git",
     "directory": "packages/fonts"
   },
-  "homepage": "https://github.com/Digital-Defiance/ghdash-plugins/tree/main/packages/fonts#readme",
-  "keywords": ["emdash", "ghdash", "astro", "fonts", "google-fonts"],
-  "bin": { "ghdash-fonts": "bin/ghdash-fonts.mjs" },
+  "homepage": "https://github.com/Digital-Defiance/gitdash-plugins/tree/main/packages/fonts#readme",
+  "keywords": [
+    "emdash",
+    "gitdash",
+    "astro",
+    "fonts",
+    "google-fonts"
+  ],
+  "bin": {
+    "gitdash-fonts": "bin/gitdash-fonts.mjs",
+    "ghdash-fonts": "bin/gitdash-fonts.mjs"
+  },
   "exports": {
     "./FontStyles.astro": "./components/FontStyles.astro",
     "./css": "./lib/css.mjs",
     "./package.json": "./package.json"
   },
-  "files": ["bin", "lib", "components", "README.md"],
-  "scripts": { "test": "node --test test/*.test.mjs" },
-  "peerDependencies": { "astro": ">=5" }
+  "files": [
+    "bin",
+    "lib",
+    "components",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "peerDependencies": {
+    "astro": ">=5"
+  }
 }

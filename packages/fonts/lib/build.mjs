@@ -23,11 +23,11 @@ async function get(url, binary) {
 rmSync(out, { recursive: true, force: true });
 const row = findRow();
 if (!row) {
-	console.log("ghdash-fonts: no published entry in the fonts collection, skipping");
+	console.log("gitdash-fonts: no published entry in the fonts collection, skipping");
 	process.exit(0);
 }
 const { settings, warnings } = readSettings(row);
-for (const w of warnings) console.warn("ghdash-fonts: WARNING:", w);
+for (const w of warnings) console.warn("gitdash-fonts: WARNING:", w);
 
 mkdirSync(out, { recursive: true });
 const customDir = "custom-fonts";
@@ -36,20 +36,20 @@ if (existsSync(customDir)) {
 	for (const file of readdirSync(customDir)) {
 		const face = parseCustomFontName(file);
 		if (!face) {
-			if (!file.startsWith(".")) console.warn(`ghdash-fonts: WARNING: ${customDir}/${file} is not named like "Family Name-400.woff2" and was skipped`);
+			if (!file.startsWith(".")) console.warn(`gitdash-fonts: WARNING: ${customDir}/${file} is not named like "Family Name-400.woff2" and was skipped`);
 			continue;
 		}
 		copyFileSync(join(customDir, file), join(out, `custom-${file}`));
 		custom.push(face);
 	}
-	if (custom.length) console.log(`ghdash-fonts: ${custom.length} font file(s) from ${customDir}/`);
+	if (custom.length) console.log(`gitdash-fonts: ${custom.length} font file(s) from ${customDir}/`);
 }
 const faces = [];
 for (const family of families(settings, custom.map((f) => f.family))) {
 	let res = await get(googleCssUrl(family, settings.weights));
 	if (res.status === 400) res = await get(googleCssUrl(family));
 	if (res.status !== 200) {
-		console.warn(`ghdash-fonts: WARNING: could not find "${family}" on Google Fonts (HTTP ${res.status}); skipped`);
+		console.warn(`gitdash-fonts: WARNING: could not find "${family}" on Google Fonts (HTTP ${res.status}); skipped`);
 		continue;
 	}
 	const parsed = parseGoogleCss(res.body).filter((f) => settings.subsets.includes(f.subset));
@@ -59,7 +59,7 @@ for (const family of families(settings, custom.map((f) => f.family))) {
 		writeFileSync(join(out, fileName(face)), file.body);
 		faces.push(face);
 	}
-	console.log(`ghdash-fonts: ${family}: ${parsed.length} file(s)`);
+	console.log(`gitdash-fonts: ${family}: ${parsed.length} file(s)`);
 }
 writeFileSync(join(out, "fonts.css"), `${adobeImport(settings)}${fontFaceCss(faces)}\n${custom.length ? `${customFaceCss(custom)}\n` : ""}${rulesCss(settings)}\n`);
-console.log(`ghdash-fonts: wrote ${out}/fonts.css with ${faces.length} font file(s)`);
+console.log(`gitdash-fonts: wrote ${out}/fonts.css with ${faces.length} font file(s)`);

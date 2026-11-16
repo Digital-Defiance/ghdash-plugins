@@ -1,13 +1,16 @@
 #!/usr/bin/env node
-// ghdash-team: adds a "team" collection (fields and three sample members) to a GHDash site's content/ folder.
-// Run from the site root: npx ghdash-team
-import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+// gitdash-team: adds a "team" collection (fields and three sample members) to a GitDash site's content/ folder.
+// Run from the site root: npx gitdash-team
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { spawnSync } from "node:child_process";
 
-const bin = resolve("node_modules/@digitaldefiance/ghdash-pages/bin/ghdash-pages.mjs");
+// The adapter was called ghdash-pages before the GitDash rename.
+const ADAPTERS = ["gitdash-pages", "ghdash-pages"];
+const pagesDir = ADAPTERS.map((n) => resolve(`node_modules/@digitaldefiance/${n}`)).find((d) => existsSync(d)) ?? resolve("node_modules/@digitaldefiance/gitdash-pages");
+const bin = ADAPTERS.map((n) => join(pagesDir, `bin/${n}.mjs`)).find((f) => existsSync(f));
 for (const cmd of ["build-db", "fetch-browser-api", "studio-assets"]) {
 	const r = spawnSync(process.execPath, [bin, cmd], { stdio: "inherit" });
 	if (r.status !== 0) process.exit(r.status ?? 1);
@@ -15,7 +18,7 @@ for (const cmd of ["build-db", "fetch-browser-api", "studio-assets"]) {
 const require = createRequire(resolve("package.json"));
 const sqlite3InitModule = (await import(pathToFileURL(require.resolve("@sqlite.org/sqlite-wasm")).href)).default;
 const api = await import(pathToFileURL(resolve("public/studio-api/entry.js")).href);
-const studioDir = resolve("node_modules/@digitaldefiance/ghdash-pages/studio");
+const studioDir = join(pagesDir, "studio");
 const { openDb } = await import(pathToFileURL(join(studioDir, "load-db.js")).href);
 const { snapshot, filesFromContent, diffFiles } = await import(pathToFileURL(join(studioDir, "tray.js")).href);
 

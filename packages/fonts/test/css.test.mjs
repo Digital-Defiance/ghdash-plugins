@@ -38,6 +38,7 @@ test("applies body and heading settings, falling back to the body font for headi
 	const css = rulesCss(settings);
 	assert.match(css, /body\{font-family:'Lora',system-ui,sans-serif;font-size:18px\}/);
 	assert.match(css, /h1,h2,h3,h4,h5,h6\{color:#123456;text-transform:uppercase\}/);
+	assert.match(css, /--gitdash-heading-font:'Lora'/);
 	assert.match(css, /--ghdash-heading-font:'Lora'/);
 });
 

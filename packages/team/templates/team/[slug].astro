@@ -8,7 +8,7 @@ export async function getStaticPaths() {
 import { getEmDashEntry, decodeSlug } from "emdash";
 import { PortableText } from "emdash/ui";
 import Base from "../../layouts/Base.astro";
-import TeamGrid from "@digitaldefiance/ghdash-team/TeamGrid.astro";
+import TeamGrid from "@digitaldefiance/gitdash-team/TeamGrid.astro";
 
 const slug = decodeSlug(Astro.params.slug);
 if (!slug) return Astro.rewrite("/404");

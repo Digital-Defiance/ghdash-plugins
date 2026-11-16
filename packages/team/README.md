@@ -1,18 +1,18 @@
-# @digitaldefiance/ghdash-team
+# @digitaldefiance/gitdash-team
 
-A team page for [EmDash](https://github.com/emdash-cms/emdash) sites, including sites on GitHub Pages built with [GHDash](https://github.com/Digital-Defiance/ghdash). It is modelled on the features of the WordPress plugin Team Members Pro.
+A team page for [EmDash](https://github.com/emdash-cms/emdash) sites, including sites on GitHub Pages built with [GitDash](https://github.com/Digital-Defiance/gitdash). It is modelled on the features of the WordPress plugin Team Members Pro.
 
 You get a `team` collection, a `TeamGrid` component, a `/team` page with department filter buttons, and a page for each member.
 
 ## Install
 
 ```sh
-npm install @digitaldefiance/ghdash-team
-npx ghdash-team                      # adds the "team" collection and three sample members to content/
-cp -r node_modules/@digitaldefiance/ghdash-team/templates/team src/pages/team
+npm install @digitaldefiance/gitdash-team
+npx gitdash-team                      # adds the "team" collection and three sample members to content/
+cp -r node_modules/@digitaldefiance/gitdash-team/templates/team src/pages/team
 ```
 
-`npx ghdash-team` needs a GHDash site (it uses `@digitaldefiance/ghdash-pages` to build the content database). On a regular EmDash site, create the collection in the admin with the fields below instead.
+`npx gitdash-team` needs a GitDash site (it uses `@digitaldefiance/gitdash-pages` to build the content database). On a regular EmDash site, create the collection in the admin with the fields below instead.
 
 ## Fields
 
@@ -34,7 +34,7 @@ A member that isn't published is not shown.
 
 ```astro
 ---
-import TeamGrid from "@digitaldefiance/ghdash-team/TeamGrid.astro";
+import TeamGrid from "@digitaldefiance/gitdash-team/TeamGrid.astro";
 ---
 <TeamGrid members={members} layout="grid" shape="round" photoPosition="top" filter />
 ```

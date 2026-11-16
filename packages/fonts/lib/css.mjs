@@ -159,8 +159,10 @@ export function rulesCss(s) {
 			.join(";");
 	const out = [];
 	const root = decl([
-		["--ghdash-body-font", s.bodyFont && stack(s.bodyFont)],
-		["--ghdash-heading-font", (s.headingFont || s.bodyFont) && stack(s.headingFont || s.bodyFont)],
+		...["gitdash", "ghdash"].flatMap((p) => [
+			[`--${p}-body-font`, s.bodyFont && stack(s.bodyFont)],
+			[`--${p}-heading-font`, (s.headingFont || s.bodyFont) && stack(s.headingFont || s.bodyFont)],
+		]),
 	]);
 	if (root) out.push(`:root{${root}}`);
 	const body = decl([

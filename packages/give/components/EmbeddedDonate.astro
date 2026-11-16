@@ -1,0 +1,71 @@
+---
+import { maximumCents, minimumCents, presetDollars } from "../lib/stripe-amounts.mjs";
+
+interface Props {
+	node?: { presets?: string };
+	presets?: string;
+}
+
+const { node, presets = node?.presets } = Astro.props;
+const parsed = (typeof presets === "string" ? presets : "").split(",").map((amount) => Number(amount.trim()))
+	.filter((amount) => Number.isInteger(amount) && amount > 0 && amount <= maximumCents / 100);
+const amounts = parsed.length ? [...new Set(parsed)] : presetDollars;
+const key = import.meta.env.PUBLIC_GIVE_STRIPE_PUBLISHABLE_KEY ?? "";
+const endpoint = URL.parse(import.meta.env.PUBLIC_GIVE_STRIPE_SESSION_URL ?? "");
+const configured = /^pk_(test|live)_[a-z0-9_]+$/i.test(key) && endpoint?.protocol === "https:";
+---
+
+{configured ? (
+	<div data-stripe-donation data-key={key} data-endpoint={endpoint.href}>
+		<form>
+			<fieldset>
+				<legend>Donation amount (USD)</legend>
+				<div class="presets">
+					{amounts.map((amount) => (
+						<label><input type="radio" name="preset" value={amount} required /> {"$" + amount}</label>
+					))}
+					<label><input type="radio" name="preset" value="custom" required /> Other amount</label>
+				</div>
+				<label data-custom hidden>
+					Amount in US dollars
+					<input name="custom" type="number" inputmode="decimal" min={minimumCents / 100} max={maximumCents / 100} step="0.01" disabled />
+				</label>
+			</fieldset>
+			<button type="submit" disabled>Continue to card payment</button>
+		</form>
+		<p role="status" data-status></p>
+		<div data-card-checkout></div>
+		<button type="button" data-change hidden>Change amount</button>
+		<noscript>Enable JavaScript to donate by card.</noscript>
+	</div>
+) : (
+	<p>Online card donations are temporarily unavailable.</p>
+)}
+
+<script>
+	import { setupStripeDonation } from "./stripe-form.mjs";
+	document.querySelectorAll("[data-stripe-donation]").forEach(setupStripeDonation);
+</script>
+
+<style>
+	fieldset { border: 0; padding: 0; margin: 0 0 1rem; }
+	legend { font-weight: 700; margin-bottom: 0.5rem; }
+	.presets { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+	.presets label, button {
+		display: inline-flex;
+		gap: 0.45rem;
+		align-items: center;
+		min-height: 44px;
+		padding: 0.5rem 0.8rem;
+		border: 1px solid currentColor;
+		border-radius: 0.4rem;
+		color: inherit;
+		background: transparent;
+		cursor: pointer;
+	}
+	[hidden] { display: none; }
+	label[data-custom]:not([hidden]) { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-top: 0.75rem; }
+	input[type="number"] { max-inline-size: 10rem; padding: 0.4rem; }
+	button:disabled { opacity: 0.55; cursor: wait; }
+	[data-card-checkout]:not(:empty) { margin-block: 0.75rem; }
+</style>

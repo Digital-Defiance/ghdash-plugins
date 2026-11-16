@@ -1,0 +1,54 @@
+---
+import type { CheckoutChoice } from "../lib/checkout.mjs";
+import { checkoutChoices } from "../lib/checkout.mjs";
+
+interface Props {
+	choices?: readonly CheckoutChoice[];
+	node?: { choices?: unknown };
+}
+
+const { node, choices = node?.choices } = Astro.props;
+const links = checkoutChoices(choices);
+---
+
+{
+	links.length > 0 && (
+		<ul class="gitdash-donate" role="list">
+			{links.map(({ label, url }) => (
+				<li>
+					<a href={url} referrerpolicy="no-referrer">
+						{label}
+					</a>
+				</li>
+			))}
+		</ul>
+	)
+}
+
+<style>
+	.gitdash-donate {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+		margin-block: 1rem;
+		padding-inline-start: 0;
+		list-style: none;
+	}
+
+	.gitdash-donate a {
+		display: inline-flex;
+		align-items: center;
+		min-block-size: 44px;
+		padding-inline: 1rem;
+		border: 1px solid currentColor;
+		border-radius: 0.375rem;
+		color: inherit;
+		text-decoration: underline;
+		text-underline-offset: 0.2em;
+	}
+
+	.gitdash-donate a:focus-visible {
+		outline: 2px solid currentColor;
+		outline-offset: 3px;
+	}
+</style>

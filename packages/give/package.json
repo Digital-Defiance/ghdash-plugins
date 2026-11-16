@@ -1,0 +1,31 @@
+{
+	"name": "@digitaldefiance/gitdash-give",
+	"version": "0.1.0",
+	"description": "GiveWP-style donation forms with embedded or hosted checkout for EmDash and GitDash.",
+	"type": "module",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Digital-Defiance/gitdash-plugins.git",
+		"directory": "packages/give"
+	},
+	"homepage": "https://github.com/Digital-Defiance/gitdash-plugins/tree/main/packages/give#readme",
+	"keywords": ["emdash", "gitdash", "astro", "donations", "givewp"],
+	"exports": {
+		".": "./lib/plugin.mjs",
+		"./studio": "./lib/studio.mjs",
+		"./astro": "./components/index.mjs",
+		"./Donate.astro": "./components/Donate.astro",
+		"./EmbeddedDonate.astro": "./components/EmbeddedDonate.astro",
+		"./stripe-worker": "./lib/stripe-worker.mjs",
+		"./wordpress": "./lib/wordpress.mjs",
+		"./package.json": "./package.json"
+	},
+	"files": ["components", "lib", "README.md"],
+	"scripts": { "test": "node --test test/*.test.mjs" },
+	"engines": { "node": ">=22.12" },
+	"peerDependencies": {
+		"astro": ">=6",
+		"emdash": ">=1.5.0"
+	}
+}

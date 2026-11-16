@@ -2,7 +2,7 @@ name: Publish to npm
 
 on:
   push:
-    tags: ["team-v*", "fonts-v*"]
+    tags: ["team-v*", "fonts-v*", "give-v*"]
 
 permissions:
   contents: read

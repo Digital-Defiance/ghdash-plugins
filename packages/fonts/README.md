@@ -1,27 +1,27 @@
-# @digitaldefiance/ghdash-fonts
+# @digitaldefiance/gitdash-fonts
 
-Choose Google Fonts in the studio and serve them from your own site, for [EmDash](https://github.com/emdash-cms/emdash) and [GHDash](https://github.com/Digital-Defiance/ghdash) sites. It covers the main features of the WordPress plugin Fonts Plugin: font choice, per-element typography, and local hosting so visitors make no requests to Google.
+Choose Google Fonts in the studio and serve them from your own site, for [EmDash](https://github.com/emdash-cms/emdash) and [GitDash](https://github.com/Digital-Defiance/gitdash) sites. It covers the main features of the WordPress plugin Fonts Plugin: font choice, per-element typography, and local hosting so visitors make no requests to Google.
 
 ## Install
 
 ```sh
-npm install @digitaldefiance/ghdash-fonts
-npx ghdash-fonts init      # adds a "fonts" collection with one entry to content/
+npm install @digitaldefiance/gitdash-fonts
+npx gitdash-fonts init      # adds a "fonts" collection with one entry to content/
 ```
 
 Add the component to your layout's `<head>`, after your other stylesheets:
 
 ```astro
 ---
-import FontStyles from "@digitaldefiance/ghdash-fonts/FontStyles.astro";
+import FontStyles from "@digitaldefiance/gitdash-fonts/FontStyles.astro";
 ---
 <FontStyles />
 ```
 
-Run `ghdash-fonts build` before `astro build`:
+Run `gitdash-fonts build` before `astro build`:
 
 ```json
-"build": "... && ghdash-fonts build && astro build && ..."
+"build": "... && gitdash-fonts build && astro build && ..."
 ```
 
 ## Use
@@ -40,7 +40,7 @@ Open the **Fonts** collection in the studio, edit the entry, and commit. The nex
 | Adobe Fonts web project ID, Adobe fonts | `abc1def`, `proxima-nova`: list the fonts from Adobe, then use them in the font fields above |
 | Other elements | one per line: `selector \| Font family \| weight`, such as `blockquote \| Lora \| 400` |
 
-The CSS variables `--ghdash-body-font` and `--ghdash-heading-font` are also set, for use in your own styles.
+The CSS variables `--gitdash-body-font` and `--gitdash-heading-font` are also set, for use in your own styles. The older names `--ghdash-body-font` and `--ghdash-heading-font` still work.
 
 If your theme sets fonts with a more specific selector (a class, for example), the settings above won't override it. Use the "Other elements" field to target that selector.
 
@@ -48,7 +48,7 @@ Values are checked before they are written to the stylesheet. A font name, size,
 
 ## Adobe Fonts
 
-Adobe's licence doesn't allow self-hosting, so fonts from an Adobe web project load from `use.typekit.net`, and visitors make a request to Adobe. Google fonts are still served from your site. Create a web project at fonts.adobe.com, add the domains your site uses, and copy the project ID into "Adobe Fonts web project ID". List the Adobe font names (as shown in the project's CSS, like `proxima-nova`) in "Fonts that come from Adobe". If you already ran `ghdash-fonts init`, run it again to add the two new fields.
+Adobe's licence doesn't allow self-hosting, so fonts from an Adobe web project load from `use.typekit.net`, and visitors make a request to Adobe. Google fonts are still served from your site. Create a web project at fonts.adobe.com, add the domains your site uses, and copy the project ID into "Adobe Fonts web project ID". List the Adobe font names (as shown in the project's CSS, like `proxima-nova`) in "Fonts that come from Adobe". If you already ran `gitdash-fonts init`, run it again to add the two new fields.
 
 ## Your own font files
 

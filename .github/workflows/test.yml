@@ -17,5 +17,5 @@ jobs:
         working-directory: packages/fonts
       - name: Packages contain what they should
         run: |
-          (cd packages/team && npm pack --dry-run 2>&1 | grep -E "bin/ghdash-team.mjs|components/TeamGrid.astro|templates/team/index.astro")
-          (cd packages/fonts && npm pack --dry-run 2>&1 | grep -E "bin/ghdash-fonts.mjs|lib/build.mjs|components/FontStyles.astro")
+          (cd packages/team && npm pack --dry-run 2>&1 | grep -E "bin/gitdash-team.mjs|components/TeamGrid.astro|templates/team/index.astro")
+          (cd packages/fonts && npm pack --dry-run 2>&1 | grep -E "bin/gitdash-fonts.mjs|lib/build.mjs|components/FontStyles.astro")
